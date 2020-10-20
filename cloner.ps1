@@ -19,68 +19,23 @@ function what() {
 function lClone() {
 	$snapshot = Get-Snapshot -VM $thevm -Name "Base"
 	cls
-	$hst = Get-VMHost
-	$hst.name
-	$out = read-host -Prompt "Which host would you like to run this on?"
-	$vmhost = Get-VMHost -Name $out
+	$cname = read-host -Prompt "Enter clone name"
 	cls
-	$dst = Get-Datastore
-	$dst.name
-	$out = read-host -Prompt "Enter the Datastore you'd like to use"
-	$dstore = Get-Datastore -Name $out
-	cls
-	$fld = Get-Folder
-	$fld.name
-	$out = read-host -Prompt "Which folder would you like to put this into?"
-	$folder = Get-Folder -Name $out
-	cls
-	$out = read-host -Prompt "Enter clone name"
-	cls
-	$newvm = New-VM -Name $out -VM $thevm -LinkedClone -ReferenceSnapshot $snapshot -VMHost $vmhost -Datastore $dstore -Location $folder
+	$newvm = New-VM -Name $cname -VM $thevm -LinkedClone -ReferenceSnapshot $snapshot -VMHost $vmhost -Datastore $dstore -Location $outputf
 }
 function rClone() {
 	cls
-	$hst = Get-VMHost
-	$hst.name
-	$out = read-host -Prompt "Which host would you like to run this on?"
-	$vmhost = Get-VMHost -Name $out
+	$cname = read-host -Prompt "Enter clone name"
 	cls
-	$dst = Get-Datastore
-	$dst.name
-	$out = read-host -Prompt "Enter the Datastore you'd like to use"
-	$dstore = Get-Datastore -Name $out
-	cls
-	$fld = Get-Folder
-	$fld.name
-	$out = read-host -Prompt "Which folder would you like to put this into?"
-	$folder = Get-Folder -Name $out
-	cls
-	$out = read-host -Prompt "Enter clone name"
-	cls
-	$newvm = New-VM -Name $out -VM $thevm -VMHost $vmhost -Datastore $dstore -Location $folder
+	$newvm = New-VM -Name $cname -VM $thevm -VMHost $vmhost -Datastore $dstore -Location $outputf
 }
 function fClone() {
 	$snapshot = Get-Snapshot -VM $thevm -Name "Base"
 	cls
-	$hst = Get-VMHost
-	$hst.name
-	$out = read-host -Prompt "Which host would you like to run this on?"
-	$vmhost = Get-VMHost -Name $out
-	cls
-	$dst = Get-Datastore
-	$dst.name
-	$out = read-host -Prompt "Enter the Datastore you'd like to use"
-	$dstore = Get-Datastore -Name $out
-	cls
-	$fld = Get-Folder
-	$fld.name
-	$out = read-host -Prompt "Which folder would you like to put this into?"
-	$folder = Get-Folder -Name $out
-	cls
 	$cname = read-host -Prompt "Enter clone name"
 	cls
-	$newlclone = New-VM -Name "$cname-temporary-lc" -VM $thevm -LinkedClone -ReferenceSnapshot $snapshot -VMHost $vmhost -Datastore $dstore -Location $folder
-	$newfclone = New-VM -Name $cname -VM "$cname-temporary-lc" -VMHost $vmhost -Datastore $dstore -Location $folder
+	$newlclone = New-VM -Name "$cname-temporary-lc" -VM $thevm -LinkedClone -ReferenceSnapshot $snapshot  -VMHost $vmhost -Datastore $dstore -Location $outputf
+	$newfclone = New-VM -Name $cname -VM "$cname-temporary-lc" -VMHost $vmhost -Datastore $dstore -Location $outputf
 	$delete = read-host -Prompt "Would you like to delete $cname-temporary-lc? [Y/n]"
 	if ($delete -match "^[nN]$") {
 		exit
@@ -91,19 +46,60 @@ function fClone() {
 	
 }
 
+$config_path = "cloner.json"
+$conf=""
+$c = $defaultviserver
 
-cls
-$viServer = read-host -Prompt "Enter vCenter hostname/ip address"
-Connect-VIServer -Server $viServer
-cls
-$fname = Get-Folder
-$fname.name
-$folder = read-host -Prompt "Which folder are your VMs in?"
+if (Test-Path $config_path) {
+
+	Write-Host "Using saved config"
+	$conf = (Get-Content -Raw -Path $config_path | ConvertFrom-Json)
+
+	if ($c -eq $null) {
+		Connect-VIServer -Server $conf.vcenter_server
+	}
+
+	$folder = $conf.base_folder
+	$vmhost = Get-VMHost -Name $conf.esxi_server
+	$dstore = Get-Datastore -Name $conf.preferred_datastore
+	$pn = $conf.preferred_network
+	$outputf = Get-Folder -Name $conf.base_folder
+
+} else {
+
+	Write-Host "Interactive Mode"
+	if ($c -eq $null) {
+		$viServer = read-host -Prompt "Enter vCenter hostname/ip address"
+		Connect-VIServer -Server $viServer
+	}
+
+	cls
+	$fname = Get-Folder
+	$fname.name
+	$folder = read-host -Prompt "Which folder are your VMs in?"
+	cls
+	$hst = Get-VMHost
+	$hst.name
+	$out = read-host -Prompt "Which host would you like to run this on?"
+	$vmhost = Get-VMHost -Name $out
+	cls
+	$dst = Get-Datastore
+	$dst.name
+	$out = read-host -Prompt "Enter the Datastore you'd like to use"
+	$dstore = Get-Datastore -Name $out
+	cls
+	$fld = Get-Folder
+	$fld.name
+	$out = read-host -Prompt "Which folder would you like to put this into?"
+	$outputf = Get-Folder -Name $out
+}
+
 cls
 $vms = Get-VM -Location $folder
 $vms.name
 $out = read-host -Prompt "Enter the VM name you'd like to clone"
-cls
 $thevm = Get-VM -Name $out
+cls
+
 
 what
