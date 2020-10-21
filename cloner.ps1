@@ -21,13 +21,27 @@ function lClone() {
 	cls
 	$cname = read-host -Prompt "Enter clone name"
 	cls
-	$newvm = New-VM -Name $cname -VM $thevm -LinkedClone -ReferenceSnapshot $snapshot -VMHost $vmhost -Datastore $dstore -Location $outputf
+	$newvm = New-VM -Name  $cname -VM $thevm -LinkedClone -ReferenceSnapshot $snapshot -VMHost $vmhost -Datastore $dstore -Location $outputf
+	$vm2 = Get-VM -Name $cname
+	$ada = Get-VM $vm2 | Get-NetworkAdapter
+	foreach ($item in $ada.name) {
+		$sw = Get-VM $vm | Get-NetworkAdapter -Name $item | `
+		Set-NetworkAdapter -NetworkName $pn -Confirm:$false
+	
+	}
 }
 function rClone() {
 	cls
 	$cname = read-host -Prompt "Enter clone name"
 	cls
 	$newvm = New-VM -Name $cname -VM $thevm -VMHost $vmhost -Datastore $dstore -Location $outputf
+	$vm2 = Get-VM -Name $cname
+	$ada = Get-VM $vm2 | Get-NetworkAdapter
+	foreach ($item in $ada.name) {
+		$sw = Get-VM $vm | Get-NetworkAdapter -Name $item | `
+		Set-NetworkAdapter -NetworkName $pn -Confirm:$false
+	
+	}
 }
 function fClone() {
 	$snapshot = Get-Snapshot -VM $thevm -Name "Base"
@@ -36,6 +50,13 @@ function fClone() {
 	cls
 	$newlclone = New-VM -Name "$cname-temporary-lc" -VM $thevm -LinkedClone -ReferenceSnapshot $snapshot  -VMHost $vmhost -Datastore $dstore -Location $outputf
 	$newfclone = New-VM -Name $cname -VM "$cname-temporary-lc" -VMHost $vmhost -Datastore $dstore -Location $outputf
+	$vm2 = Get-VM -Name $cname
+	$ada = Get-VM $vm2 | Get-NetworkAdapter
+	foreach ($item in $ada.name) {
+		$sw = Get-VM $vm | Get-NetworkAdapter -Name $item | `
+		Set-NetworkAdapter -NetworkName $pn -Confirm:$false
+	
+	}
 	$delete = read-host -Prompt "Would you like to delete $cname-temporary-lc? [Y/n]"
 	if ($delete -match "^[nN]$") {
 		exit
@@ -62,7 +83,7 @@ if (Test-Path $config_path) {
 	$folder = $conf.base_folder
 	$vmhost = Get-VMHost -Name $conf.esxi_server
 	$dstore = Get-Datastore -Name $conf.preferred_datastore
-	$pn = $conf.preferred_network
+	$pn = Get-VirtualSwitch -Name $conf.preferred_network
 	$outputf = Get-Folder -Name $conf.base_folder
 
 } else {
