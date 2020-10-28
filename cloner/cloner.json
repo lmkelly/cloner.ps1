@@ -1,0 +1,11 @@
+{
+
+    "vcenter_server" : "vcenter.liam.local",
+    "esxi_server" : "super13.cyber.local",
+    "base_folder" : "BASE-VMS",
+    "dest_folder" : "BLUE13",
+    "preferred_network" : "BLUE13-LAN",
+    "preferred_datastore" : "datastore2-super13",
+    "domain" : "liam.local"
+    
+}

@@ -1,0 +1,5 @@
+[vyos]
+10.0.17.200
+
+[vyos:vars]
+ansible_python_interpreter= /usr/bin/python3

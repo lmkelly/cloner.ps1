@@ -1,0 +1,31 @@
+---
+# This playbook adds the liam's public key
+# The .ssh directory should already exist and should be set to the appropriate permissions
+- name: push key
+  hosts: linux_server
+  tasks:
+    - name: create the .ssh directory if it is not there
+      file:
+        path: /home/liam/.ssh
+        state: directory
+        mode: 0700
+    - name: create authorized_keys file
+      file:
+        path: /home/liam/.ssh/authorized_keys
+        state: touch
+        mode: 0644
+    - name: copy over key block and append to authorized_keys
+      blockinfile:
+        dest: /home/liam/.ssh/authorized_keys
+        block: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCs/fyZ9yx7l3AkpUAbFznqOG0xgj9pqw/fiepNld04V0UTRIKRa8j91hBj4keSwMGtvYDw2g/eh0N5zu4GY2K9w6VD0ebce9b3cFP7PTlLGnWj4VK7S/dqr+0Wb30/1sGPfxC/poIIO27HeFvDRUvYfbVwSSROmTN9xV5UmeihzaDHQ8C3GT5+tnCiq+PAt7RDY3n7XlgQaUcvz1paZ8epcwaldYUBabm07G592jywqSZlLvK+qOAHITAu7pTaOECiqsaUlX0bMCkLaPRofVs4OgKIxjcv38PW8Ht3+fNclfefAshi9K21yJ7gOJGL7iXgMd4hDJZS6bJ7drhVVOxKdWoTh0ylEyN04vU53LxnFYZ3AFMp2H7D+6kKqm+328YqeWUVcygSc6nMnrjE0kQ3wF7hwmaeKBdXvPX1fRYEwjRVctd/bKyHUHQ4WNH7Z3wfw3KQK6E9Al0QbU2qP1Twl5Yw8l9RlMBzr35aK9PH8U9SuqLc+UMhfODBxRVCb0s= liam@xubuntu
+    - name: create sudoers dropin file for 480
+      file:
+        path: /etc/sudoers.d/480
+        state: touch
+        mode: 0440
+      become: yes
+    - name: create liam entry in /etc/sudoers.d/480
+      blockinfile:
+        dest: /etc/sudoers.d/480
+        block: "liam ALL=(ALL) NOPASSWD: ALL"
+      become: yes
