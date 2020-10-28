@@ -1,0 +1,28 @@
+---
+# This playbook configures blueteam ubuntu networking
+- name: ubuntu-networking
+  hosts: ubuntu_server
+  tasks:
+  - name: set the hostname
+    hostname:
+      name: "{{hostname}}"
+    become: yes
+  - name: add host to hosts file
+    lineinfile:
+      path: /etc/hosts
+      line: '127.0.0.1 {{hostname}}'
+    become: yes
+  - name: push over the networking script
+    template:
+      src: files/ubuntu/netplan-script.yaml
+      dest: '/etc/netplan/01-netcfg.yaml'
+      mode: 0644
+      owner: root
+      group: root
+      force: yes
+    become: yes
+  - name: restart networking
+    shell: "sudo netplan apply"
+    become: yes
+    async: 1
+    poll: 0
