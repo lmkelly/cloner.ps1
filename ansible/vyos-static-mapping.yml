@@ -1,0 +1,17 @@
+---
+# This playbook adds a static mapping to your fw-bluex
+- name: vyos
+  hosts: vyos
+  vars_prompt:
+    - name: mapped_ip
+      prompt: what IP address do you want statically mapped
+      private: no
+    - name: mapped_mac
+      prompt: What is the host's MAC address
+      private: no
+  tasks:
+    - name: show config on ethernet devices eth0 and eth1
+      vyos_config:
+        lines:
+        - "set service dhcp-server shared-network-name {{shared_network_name}} subnet {{dhcp_subnet}} static-mapping {{static_map_name}} ip-address {{ mapped_ip }}"
+        - "set service dhcp-server shared-network-name {{shared_network_name}} subnet {{dhcp_subnet}} static-mapping {{static_map_name}} mac-address {{ mapped_mac }}"
