@@ -1,0 +1,6 @@
+New-ADOrganizationalUnit -Name "blue13" -Path "DC=blue13,DC=local"
+New-ADOrganizationalUnit -Name "Accounts" -Path "OU=blue13,DC=blue13,DC=local"
+New-ADOrganizationalUnit -Name "Groups" -Path "OU=Accounts,OU=blue13,DC=blue13,DC=local"
+New-ADOrganizationalUnit -Name "Computers" -Path "OU=blue13,DC=blue13,DC=local"
+New-ADOrganizationalUnit -Name "Servers" -Path "OU=Computers,OU=blue13,DC=blue13,DC=local"
+New-ADOrganizationalUnit -Name "Workstations" -Path "OU=Computers,OU=blue13,DC=blue13,DC=local"

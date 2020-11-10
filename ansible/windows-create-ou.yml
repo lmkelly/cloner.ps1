@@ -1,0 +1,16 @@
+---
+- name: Create OUs for blue team DC
+  hosts: domain_controller
+  gather_facts: no
+
+  tasks:
+  - name: Push jinja script
+    win_template:
+      src: files/windows/create-ou.ps1.j2
+      dest: C:\480\create-ou.ps1
+  - name: Deploy script
+    async: 10
+    poll: 0
+    win_shell:
+      C:\480\create-ou.ps1
+      
