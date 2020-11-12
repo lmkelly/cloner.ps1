@@ -12,10 +12,21 @@ device=ens192
 
 
 [windows_workstation]
+10.0.5.92 hostname=workstation-2
+10.0.5.50 hostname=workstation-1
+
+[windows_workstation:vars]
+gateway=10.0.5.2
+prefix=24
+netmask=255.255.255.0
+name_server=10.0.5.5
+domain=blue13.local
+ansible_user=Deployer
 
 [windows:children]
 windows_server
 windows_workstation
+
 [windows:vars]
 ansible_shell_type=cmd
 device=Ethernet0
@@ -26,16 +37,20 @@ windows_server
 
 [windows_server:children]
 domain_controller
+vanhalen
 
 
 [domain_controller]
 10.0.5.5 hostname=dc-blue13
 
+[vanhalen]
+10.0.5.6 hostname=vanhalen
+
 [server:vars]
 gateway=10.0.5.2
 prefix=24
 netmask=255.255.255.0
-name_server=10.0.5.2
+name_server=10.0.5.5
 domain=blue13.local
 ansible_user=Deployer
 
@@ -57,4 +72,4 @@ ansible_connection=network_cli
 ansible_network_os=vyos
 shared_network_name="BLUE13"
 dhcp_subnet="10.0.5.0/24"
-static_map_name="dc-blue13"
+static_map_name="vanhalen2"
