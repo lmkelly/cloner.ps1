@@ -1,0 +1,22 @@
+---
+- name: Enable RDP on windows
+  hosts: windows_workstation:vanhalen
+  gather_facts: no
+  tasks: 
+  - name: Enable RDP
+    async: 10
+    poll: 0
+    win_shell:
+      Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -Value 0
+  - name: Enable RDP firewall
+    async: 10
+    poll: 0
+    win_shell:
+      Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+  - name: restrict to domain admin
+    ansible.windows.win_group_membership:
+      name: Remote Desktop Users
+      members:
+        - BLUE13\Domain Admins
+      state: present
+ 

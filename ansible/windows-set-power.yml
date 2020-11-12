@@ -1,0 +1,11 @@
+---
+- name: Change power settings on windows
+  hosts: windows_workstation:vanhalen
+  gather_facts: no
+  tasks: 
+  - name: Change power setting
+    async: 10
+    poll: 0
+    win_shell:
+      POWERCFG /SETACTIVE 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+    
