@@ -1,0 +1,20 @@
+---
+- name: Install programs on workstations
+  hosts: windows_workstation
+  gather_facts: no
+  tasks:
+  - name: create a deploy directory
+    win_file:
+      path: C:\480
+      state: directory
+  - name: load from jinja template
+    win_template:
+      src: files/windows/install-packages.ps1.j2
+      dest: C:\480\install-packages.ps1
+  - name: run install script
+    async: 10
+    poll: 0
+    win_shell:
+      C:\480\install-packages.ps1
+      
+        

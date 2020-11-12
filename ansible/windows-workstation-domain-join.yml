@@ -1,0 +1,30 @@
+---
+- name: Joins a windows machine to a domain
+  hosts: windows_workstation
+  vars_prompt:
+  - name: username
+    prompt: "Enter the domain username"
+    private: no
+  - name: password
+    prompt: "Enter domain password"
+    private: yes
+  - name: path
+    prompt: "Enter OU path"
+    private: no
+
+
+  tasks:
+  - name: change dns server
+    win_shell:
+       netsh interface ip set dns name="{{ device }}" static "{{ name_server }}"
+  - name: join domain
+    win_domain_membership:
+      dns_domain_name: "{{ domain }}"
+      domain_admin_user: "{{ username }}"
+      domain_admin_password: "{{ password }}"
+      domain_ou_path: "{{ path }}"
+      state: domain
+    register: domain_state
+  - name: reboot
+    win_reboot:
+    when: domain_state.reboot_required

@@ -1,0 +1,5 @@
+$Packages = 'googlechrome', 'git', '7zip', 'vscode', 'putty', 'python3', 'wireguard', 'spotify'
+
+Foreach ($Name in $Packages) {
+choco install $name -y
+}
