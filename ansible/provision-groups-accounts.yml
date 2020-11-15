@@ -1,0 +1,52 @@
+---
+# Playbook which creates domain admin, groups and users
+- name: create_groups_users
+  hosts: domain_controller
+  vars_prompt:
+  - name: group_file
+    prompt: enter the path of your groups CSV file
+    private: no
+  - name: domain_admin
+    prompt: What is the new domain admin
+    private: no
+  - name: da_pw
+    prompt: What is your new domain admin's password?
+    private: yes
+  - name: ug_file
+    prompt: path to file contains users/groups/passwords
+    private: no
+  tasks:
+  - name: Add domain admin
+    win_domain_user:
+      name: "{{ domain_admin }}"
+      password: "{{ da_pw }}"
+      state: present
+      groups:
+        - Domain Admins
+  - name: read groups CSV file
+    read_csv:
+      path: "{{ group_file }}"
+    register: items
+    delegate_to: localhost
+  - name: add groups
+    win_domain_group:
+      name: "{{ item.group }}"
+      scope: global
+      path: OU=Groups,OU=Accounts,OU=blue13,DC=blue13,DC=local
+    with_items: "{{ items.list }}"
+  - name: read user/group/pw CSV file
+    loop_control:
+      loop_var: outer_item
+    read_csv:
+      path: "{{ ug_file }}"
+    register: outer_item
+    delegate_to: localhost
+  - name: create users
+    win_domain_user:
+      name: "{{ item.username }}"
+      password: "{{ item.password }}"
+      groups:
+        - Domain Users
+        - "{{ item.group }}"
+      path: OU=Accounts,OU=blue13,DC=blue13,DC=local
+    with_items: "{{ outer_item.list }}"
