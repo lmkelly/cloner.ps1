@@ -1,0 +1,15 @@
+---
+# Install and start nginx on aws
+- name: install nginx
+  hosts: aws
+  tasks:
+  - name: Install nginx
+    apt:
+      name: ['nginx']
+      state: latest
+    become: true
+  - name: start nginx
+    service:
+      name: nginx
+      state: started
+
